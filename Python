@@ -1,0 +1,73 @@
+from collections import deque
+
+def bfs(grid, start, end):
+    n, m = len(grid), len(grid[0])
+    queue = deque([start])
+    distances = [[float('inf')] * m for _ in range(n)]
+    x, y = start
+    distances[x][y] = 0
+    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+    
+    while queue:
+        x, y = queue.popleft()
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < n and 0 <= ny < m and grid[nx][ny] == '.' and distances[nx][ny] == float('inf'):
+                distances[nx][ny] = distances[x][y] + 1
+                queue.append((nx, ny))
+    
+    ex, ey = end
+    return distances[ex][ey]
+
+def solve():
+    import sys
+    input = sys.stdin.read
+    data = input().split()
+    
+    n = int(data[0])
+    m = int(data[1])
+    k = int(data[2])
+    
+    grid = []
+    buttons = []
+    start = end = None
+    
+    index = 3
+    for i in range(n):
+        row = list(data[index])
+        index += 1
+        for j in range(m):
+            if row[j] == 'S':
+                start = (i, j)
+            elif row[j] == 'F':
+                end = (i, j)
+        grid.append(row)
+    
+    for _ in range(k):
+        x = int(data[index]) - 1
+        y = int(data[index + 1]) - 1
+        index += 2
+        buttons.append((x, y))
+    
+    if not start or not end:
+        print(-1)
+        return
+    
+    total_time = 0
+    current = start
+    
+    for button in buttons:
+        time = bfs(grid, current, button)
+        if time == float('inf'):
+            print(-1)
+            return
+        total_time += time
+        current = button
+    
+    time = bfs(grid, current, end)
+    if time == float('inf'):
+        print(-1)
+        return
+    
+    total_time += time
+    print(total_time)
